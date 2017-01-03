@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<form action="">
+		<div>用户名：<input id="txt" type="text"><span></span></div>
+		<div>密码：<input class="pwd" type="password"></div>
+		<div>密码：<input class="pwd" type="password"></div>
+		<input id="btn" type="button" value="注册">
+	</form>
+
+</body>
+<script type="text/javascript" src='jquery-3.0.0.min.js'></script>
+<script type="text/javascript">	
+	var $name = $("#txt");//用户名
+	var $pwd = $('.pwd');
+	var $btn = $('#btn');
+	var bol = false;
+	//change指针移开触发,发送服务器请求，判断用户名是否存在
+	$name.on("change",function(){
+		$.ajax({
+			//请求类型
+			type:"post",
+			//请求地址
+			url:"register.php",
+			//发送的数据
+			data:{type:"check",name:$name.val()},
+			//请求数据类型
+			dataType:"json",
+			//请求成功返回的数据
+			success:function(data){
+				//考虑到用户会无视用户名已经存在的提醒而直接点击注册，设置bol变量阻止用户这一行为
+				bol = data.bol;
+				//判断用户名是否存在，提示字体标记不同颜色
+				if (data.bol){
+					$name.next().html("可以注册").css("color","green");
+				}else{
+					$name.next().html("用户名已存在").css("color","red");
+				}
+			}
+		})
+	})
+
+	//点击注册
+	$btn.on("click",function(){
+		if(!bol){
+			alert("用户名已存在");
+			return;
+		}
+		//信息不完整返回
+		if($name.val()==""||$pwd.val()==""){
+			alert("请输入完整信息");
+			return;
+		}
+		//两次密码不一致返回
+		if($pwd.eq(0).val()!=$pwd.eq(1).val()){
+			alert("两次密码不一致");
+			return;
+		}
+		//满足注册条件发送服务器请求
+		$.ajax({
+			type:"post",
+			url:"register.php",
+			//发送数据中包含数据处理类型
+			data:{type:"add",name:$name.val(),pwd:$pwd.val()},
+			dataType:"json",
+			success:function(data){
+				if(data.bol){
+					alert("注册成功");
+				}else{
+					alert("注册失败");
+				}
+			}
+		})
+	})
+
+</script>
+</html>
+
+
+
